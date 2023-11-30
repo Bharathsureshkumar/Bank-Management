@@ -1,0 +1,23 @@
+{
+    "requiredTransactionFields" : {
+
+        "header" : {
+            "account" : {
+                "length" : 11,
+                "format" : "^[0-9]+$",
+                "required" : true
+            },
+            "amount" : {
+                "min" : 10,
+                "max" : 100000,
+                "format" : "^[0-9.]+$",
+                "required" : true
+            },
+            "details" : {
+                "length": 100,
+                "format" : "^[a-zA-Z0-9 ]+$",
+                "required" : true
+            }
+        }
+    }
+}

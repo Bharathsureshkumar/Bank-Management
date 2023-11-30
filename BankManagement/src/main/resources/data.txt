@@ -1,0 +1,96 @@
+valid input :
+{
+    "bankId" : "bn3243th657",
+    "bankName" : "SBI",
+    "branchCode" : 123
+}
+
+Sequence :
+
+CREATE SEQUENCE account_id_sequence
+   INCREMENT 1
+   MINVALUE  1
+   MAXVALUE  10000
+   CACHE     1;
+
+CREATE SEQUENCE transaction_id_sequence
+   INCREMENT 1
+   MINVALUE  1
+   MAXVALUE  10000
+   CACHE     1;
+
+
+//To create a new bank
+
+   {
+    "accountNumber" : "123456789123",
+    "accountBalance" : "10000.88",
+    "accountType" : "saving",
+    "status" : "active"
+   }
+
+//To update bank name
+//Headers ->updateName = Canara, updateBranch = 234
+
+
+//ACCOUNT OPERATIONS:
+
+CREATE:
+->Request Body
+ {
+    "accountNumber" : "20089789121",
+	"accountBalance" : "10000.00",
+    "accountType" : "business",
+    "status" : "active"
+  }
+
+UPDATE:
+->Header
+    account-number: ____________
+    status: activate or deactivate
+
+READ:
+->URL: api/v1/account/viewAccounts
+
+
+TRANSACTION:
+->URL: api/v1/bankService/transfer
+
+->Header:
+    payee-account-number:____________
+    payer-account-number:____________
+    amount:_____________
+    details:___________
+
+
+
+Customer Operations
+
+->Create:
+     {
+
+         "panCard" : "1095940753",
+         "name" : "Ronaldhino",
+         "age" : 23,
+         "email" : "ronaldhino10@gmail.com"
+      }
+
+->View:
+    Header: 10 digit panCard number
+
+Update:
+->Header:
+    ->pan-card
+    ->name
+    ->age
+    ->email
+
+
+//Get bank accounts
+
+->Header:
+    ->pan-card: 10 digit valid panCard
+
+
+
+

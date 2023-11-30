@@ -1,0 +1,22 @@
+{
+  "customer" : {
+    "panCard" : {
+      "length" : 10,
+      "format" : "^[0-9]+$",
+      "required" : true
+    },
+    "name" : {
+      "format" : "^[a-zA-Z]+$",
+      "required" : true
+    },
+    "email" : {
+      "format" : "^(.+)@(.+)$",
+      "required" : true
+    },
+    "age" : {
+      "min" : 10,
+      "max" : 100,
+      "required" : true
+    }
+  }
+}

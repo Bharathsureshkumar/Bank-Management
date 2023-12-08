@@ -5,7 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.Resource;
+import org.springframework.stereotype.Component;
 
+@Component
 public class AccountNumberValidator {
 
 
@@ -29,6 +31,10 @@ public class AccountNumberValidator {
 
 
             Field accountField = tnsConfig.getRequiredTransactionFields().getHeader().getAccount();
+
+            if(accountNumber.matches(accountField.getFormat())){
+                validationFlag = true;
+            }
 
         }
         catch (Exception e){

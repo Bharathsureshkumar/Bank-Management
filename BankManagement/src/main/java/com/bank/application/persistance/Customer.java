@@ -1,10 +1,9 @@
 package com.bank.application.persistance;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
@@ -15,11 +14,13 @@ import java.util.List;
 
 @Entity
 @Data
+//@JsonIgnoreProperties(value = {})
 public class Customer {
 
     @Id
     @Size(min = 10, max = 10, message = "pan card number size should be exactly 10")
     @Pattern(regexp = "^[0-9A-Z]+$", message = "pan card should contain only alpha numeric values ..")
+    @Column(updatable = false)
     String panCard;
 
     String name;

@@ -17,11 +17,17 @@ public class Transaction {
     private String transactionDateTime;
     private String type;
     private String details;
+    @Column(updatable = false)
     private Double amount;
+    @Column(updatable = false)
     private Double previousBalance;
+    @Column(updatable = false)
     private Double currentBalance;
+    @Column(updatable = false)
     private String status;
+    @Column(updatable = false)
     private String sendTo;
+    @Column(updatable = false)
     private String receivedFrom;
     @JsonIgnore
     @ManyToOne(fetch = FetchType.EAGER)

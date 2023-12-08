@@ -33,15 +33,15 @@ public class BankTransactionService {
         Double payee_pre_balance = Double.parseDouble(payee_account.getAccountBalance());
         Double payer_pre_balance = Double.parseDouble(payer_account.getAccountBalance());
 
-        Double payee_new_balance = payee_pre_balance - amount;
-        Double payer_new_balance = payer_pre_balance + amount;
+        Double payee_new_balance = payee_pre_balance + amount;
+        Double payer_new_balance = payer_pre_balance - amount;
 
         payee_account.setAccountBalance(payee_new_balance + "");
         payer_account.setAccountBalance(payer_new_balance + "");
 
         //making Transaction Objects.
-        Transaction payeeTransaction = registerTransfer(trncDetails,payee_account,payer_account, payee_pre_balance, payee_new_balance, "Debit");
-        Transaction payerTransaction = registerTransfer(trncDetails,payer_account,payee_account, payer_pre_balance, payer_new_balance, "Credit");
+        Transaction payeeTransaction = registerTransfer(trncDetails,payee_account.getAccountNumber(),payer_account.getAccountNumber(), payee_pre_balance, payee_new_balance, "Credit");
+        Transaction payerTransaction = registerTransfer(trncDetails,payer_account.getAccountNumber(),payee_account.getAccountNumber(), payer_pre_balance, payer_new_balance, "Debit");
 
 //        Storing transactions to return result.
 
@@ -65,7 +65,7 @@ public class BankTransactionService {
     }
 
     public Transaction registerTransfer(Map<String, String> trncDetails,
-                                        Account fromAccount,Account toAccount,
+                                        String fromAccount,String toAccount,
                                         Double pre_balance, Double new_balance, String type){
 
         Transaction transaction = new Transaction();
@@ -76,11 +76,17 @@ public class BankTransactionService {
         transaction.setPreviousBalance(pre_balance);
         transaction.setCurrentBalance(new_balance);
         if(type.equalsIgnoreCase("Debit")){
-            transaction.setSendTo(toAccount.getAccountNumber());
+            //for deposit feature
+            if(toAccount == null) transaction.setSendTo("-");
+
+            transaction.setSendTo(toAccount);
             transaction.setReceivedFrom("-");
         }
         else if(type.equalsIgnoreCase("Credit")){
-            transaction.setReceivedFrom(fromAccount.getAccountNumber());
+            //for deposit feature
+            if(fromAccount == null) transaction.setReceivedFrom("-");
+
+            transaction.setReceivedFrom(fromAccount);
             transaction.setSendTo("-");
 
         }

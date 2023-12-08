@@ -1,10 +1,6 @@
 package com.bank.application.validators;
 
 
-
-
-
-
 public class AccountValidationConfig {
 
     RequiredTransactionFields requiredTransactionFields;

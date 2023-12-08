@@ -10,6 +10,7 @@ import com.bank.application.repository.CustomerRepo;
 import com.bank.application.repository.TransactionRepo;
 import com.bank.application.service.IAccountService;
 import com.bank.application.validators.CustomerValidation;
+import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +39,8 @@ public class AccountService implements IAccountService {
 
     @Autowired
     CustomerRepo customerRepo;
+
+    ModelMapper modelMapper = new ModelMapper();
 
     @Override
     public AccountDTO register(AccountDTO accountEntityMapper, Map<String, String> headers) throws CommonException {
@@ -101,8 +104,15 @@ public class AccountService implements IAccountService {
 
          List<AccountDTO> accountWrapper = new ArrayList<>();
          List<Account> f_account = accountRepo.findByAccountNumber(accountNumber);
+         //Temp for ModelMapper
+        AccountDTO accountDTO = new AccountDTO();
+         if(f_account.size() > 0) { //accountWrapper.add(new AccountDTO().wrapBankDetails(f_account.get(0)));
 
-         if(f_account.size() > 0) accountWrapper.add(new AccountDTO().wrapBankDetails(f_account.get(0)));
+//           ModelMapper : Converting Account to AccountDTO
+             modelMapper.map(f_account.get(0), accountDTO);
+             accountWrapper.add(accountDTO);
+         }
+
          else throw new NoDataPresentException("Requested account not present in the DB ..");
 
          return accountWrapper;

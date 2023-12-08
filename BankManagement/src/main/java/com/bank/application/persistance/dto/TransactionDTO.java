@@ -8,7 +8,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
-public class TransactionModel {
+public class TransactionDTO {
 
     private int transactionId;
     //Mapping
@@ -114,7 +114,7 @@ public class TransactionModel {
         this.receivedFrom = receivedFrom;
     }
 
-    public TransactionModel mapFromTransaction(Transaction transaction){
+    public TransactionDTO mapFromTransaction(Transaction transaction){
 
         this.amount = transaction.getAmount();
         this.status = transaction.getStatus();

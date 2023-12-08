@@ -3,16 +3,19 @@ package com.bank.application.service.Implementation;
 import com.bank.application.persistance.Account;
 import com.bank.application.persistance.Transaction;
 import com.bank.application.persistance.conversion.TransactionMapper;
-import com.bank.application.persistance.dto.TransactionModel;
+import com.bank.application.persistance.dto.TransactionDTO;
 import com.bank.application.exception.*;
 import com.bank.application.repository.AccountRepo;
+import com.bank.application.repository.TransactionRepo;
 import com.bank.application.service.ITransactionService;
+import com.bank.application.utility.ApplicationConstants;
 import com.bank.application.utility.BankTransactionService;
 import com.bank.application.utility.TransactionUtility;
+import com.bank.application.validators.AccountNumberValidator;
 import jakarta.transaction.Transactional;
+import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -22,23 +25,35 @@ import java.util.Map;
 @Service
 public class TransactionService implements ITransactionService {
 
-    @Autowired
     TransactionUtility transactionUtility;
 
-    @Autowired
     BankTransactionService banktransactionService;
 
-    @Autowired
     AccountRepo accountRepo;
 
+    TransactionRepo transactionRepo;
 
+    AccountNumberValidator accountNumberValidator;
+    ModelMapper modelMapper = new ModelMapper();
     static Logger log = LoggerFactory.getLogger(TransactionService.class);
 
 
+    public TransactionService(TransactionUtility transactionUtility,
+                              BankTransactionService banktransactionService,
+                              AccountRepo accountRepo, TransactionRepo transactionRepo,
+                              AccountNumberValidator accountNumberValidator) {
+        this.transactionUtility = transactionUtility;
+        this.banktransactionService = banktransactionService;
+        this.accountRepo = accountRepo;
+        this.transactionRepo = transactionRepo;
+        this.accountNumberValidator = accountNumberValidator;
+    }
+
     @Override
-    public List<Transaction> transfer(Map<String, String> headers)
+    public List<TransactionDTO> transfer(Map<String, String> headers)
             throws CommonException {
         List<Transaction> transactions = null;
+        List<TransactionDTO> transactionsDTO = new ArrayList<>();
         //basic validation for transaction ..
         boolean basic_validation_flag = transactionUtility.validateData(headers);
         if (basic_validation_flag) log.info("Basic Validation Completed successfully..");
@@ -50,81 +65,148 @@ public class TransactionService implements ITransactionService {
         if (business_validation_flag) log.info("Business Validation Completed successfully..");
         else log.info("Business Validation Failed .. : {}", business_validation_flag);
 
+
+
         if (basic_validation_flag && business_validation_flag) {
             transactions = banktransactionService.makeTransaction(headers);
         }
 
-        return transactions;
+        //Mapping
+
+        for(Transaction transaction: transactions){
+            TransactionDTO trnsDTO = new TransactionDTO();
+            modelMapper.map(transaction, trnsDTO);
+            transactionsDTO.add(trnsDTO);
+
+        }
+
+        return transactionsDTO;
     }
 
 
     @Override
-    public Account getAllTransactions(Map<String, String> headers) {
+    public List<TransactionDTO> getAllTransactions() {
 
-        Account account = null;
+        List<Transaction> transactions = transactionRepo.findAll();
 
-        System.out.println(headers.get("account-number"));
+        List<TransactionDTO> transactionDTO = new ArrayList<>();
 
-        try {
-            if (!headers.containsKey("account-number"))
-                throw new RequiredHeaderArgumentException("provide a valid AccountNumber");
-//            account = accountService.fetchAccountWithTransaction(headers.get("account-number"));
-        } catch (RequiredHeaderArgumentException e) {
-            System.out.println(e.getMessage());
+        for(Transaction transaction: transactions){
+
+            TransactionDTO tempTransactionDTO = new TransactionDTO();
+            modelMapper.map(transaction, tempTransactionDTO);
+            transactionDTO.add(tempTransactionDTO);
         }
 
-        for (Transaction t : account.getTransactions()) {
-            System.out.println("\n\n\n\n" + t + "\n\n");
-        }
-
-        return account;
+        return transactionDTO;
     }
 
-    @Transactional
-    public List<TransactionModel> fetchAccountWithTransaction(Map<String, String> headers) throws CommonException {
 
-        log.info("Account number :  {}", headers.get("account-number"));
+    //finding particular account number account transaction details
+    @Override
+    public List<TransactionDTO> getTransactions(Map<String, String> headers) throws CommonException {
 
-        log.info("{} number is to be retrieve transaction", headers.get("account-number"));
-
-        if (!headers.containsKey("account-number")) {
+        if (!headers.containsKey(ApplicationConstants.ACCOUNT_NUMBER)) {
             throw new RequiredHeaderArgumentException("Required account number not present exception ..");
         }
 
-        Account account = accountRepo.findByAccountNumber(headers.get("account-number")).get(0);
+        log.info("Account number :  {}", headers.get(ApplicationConstants.ACCOUNT_NUMBER));
 
-//        ObjectMapper mapper = new ObjectMapper();
-//
-//        StringWriter w = new StringWriter();
-////         writter = new StringBuffer();
-//
-//
-//        try {
-//            mapper.writeValue(w, account);
-//        } catch (IOException e) {
-//            System.out.println("\n\n\n\n" + e.getMessage());
-//            throw new RuntimeException(e);
-//        }
+        log.info("{} number is to be retrieve transaction", headers.get(ApplicationConstants.ACCOUNT_NUMBER));
 
-//        account.setTransactions(transactionRepo.findByAccount(accountRepo.findByAccountNumber(accountNumber).get(0)));
-//
+
+        Account account = accountRepo.findByAccountNumber(headers.get(ApplicationConstants.ACCOUNT_NUMBER)).get(0);
+
+
+        return fetchAccountTransaction(account);
+    }
+
+
+    @Transactional
+    public List<TransactionDTO> fetchAccountTransaction(Account account) throws CommonException {
+
+
+
+
         List<Transaction> transactions = account.getTransactions();
-//
-        List<TransactionModel> transactionModels = new ArrayList<>();
+        List<TransactionDTO> transactionModels = new ArrayList<>();
 
         for(Transaction t: transactions){
 
             transactionModels.add(TransactionMapper.entityToMapper(t));
         }
 
-//        for(Transaction t: ts){
-//            account.getTransactions().add(t);
-//        }
-//
         return transactionModels;
 
     }
 
+
+    @Override
+    public void deposit(Map<String, String> headers)throws CommonException{
+
+        if(!headers.containsKey(ApplicationConstants.ACCOUNT_NUMBER)) throw new RequiredHeaderArgumentException("Amount required .. !");
+
+
+        if(!accountNumberValidator.validateAccountNumber(headers.get(ApplicationConstants.ACCOUNT_NUMBER))){
+            throw new InvalidTransactionValueException("Invalid account Number");
+        }
+
+        if(Double.parseDouble(headers.get(ApplicationConstants.AMOUNT)) < 10 || Double.parseDouble(headers.get(ApplicationConstants.AMOUNT)) > 100000)
+            throw new InvalidTransactionValueException("Amount should be between 10 - 100000");
+
+        headers.put("details", "cash deposit");
+
+        Account account = accountRepo.findByAccountNumber(headers.get(ApplicationConstants.ACCOUNT_NUMBER)).get(0);
+
+        Double preBal = Double.parseDouble(account.getAccountBalance());
+
+        Double currentBal = Double.parseDouble(headers.get(ApplicationConstants.AMOUNT)) + preBal;
+
+        Transaction transaction = banktransactionService.registerTransfer(headers, "-", "-", preBal, currentBal, "Credit");
+        account.getTransactions().add(
+                transaction);
+        transaction.setAccount(account);
+        transactionRepo.save(transaction);
+        account.setAccountBalance(currentBal+"");
+        accountRepo.save(account);
+
+    }
+
+
+    @Override
+    public void withdraw(Map<String, String> headers)throws CommonException{
+
+        if(!headers.containsKey(ApplicationConstants.ACCOUNT_NUMBER)) throw new RequiredHeaderArgumentException("Account number required .. !");
+        if(!headers.containsKey(ApplicationConstants.AMOUNT)) throw new RequiredHeaderArgumentException("Amount required .. !");
+
+
+        if(!accountNumberValidator.validateAccountNumber(headers.get("account-number"))){
+            throw new InvalidTransactionValueException("Invalid account Number");
+        }
+
+        if(Double.parseDouble(headers.get(ApplicationConstants.AMOUNT)) < 10 || Double.parseDouble(headers.get(ApplicationConstants.AMOUNT)) > 100000)
+            throw new InvalidTransactionValueException("Amount should be between 10 - 100000");
+
+        headers.put("details", "cash withdrawal");
+
+        Account account = accountRepo.findByAccountNumber(headers.get("account-number")).get(0);
+        log.info("Amount going to be debited {}", headers.get(ApplicationConstants.AMOUNT));
+        Double preBal = Double.parseDouble(account.getAccountBalance());
+
+        if(Double.parseDouble(account.getAccountBalance()) < Double.parseDouble(headers.get("amount"))){
+            throw new MinimumBalanceException("Insufficient balance ..");
+        }
+
+        Double currentBal = preBal - Double.parseDouble(headers.get("amount")) ;
+
+        Transaction transaction = banktransactionService.registerTransfer(headers, "-", "-", preBal, currentBal, "Debit");
+
+        account.getTransactions().add(
+                transaction);
+        transaction.setAccount(account);
+        transactionRepo.save(transaction);
+        account.setAccountBalance(currentBal+"");
+        accountRepo.save(account);
+    }
 }
-//So far completed up to minimum balance require exception
-//pending make transaction update on both account and transaction table.
+

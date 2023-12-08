@@ -1,7 +1,7 @@
 package com.bank.application.utility;
 
 import com.bank.application.persistance.Transaction;
-import com.bank.application.persistance.dto.TransactionModel;
+import com.bank.application.persistance.dto.TransactionDTO;
 import com.bank.application.exception.*;
 import com.bank.application.repository.TransactionRepo;
 
@@ -31,18 +31,15 @@ public class TransactionUtility {
     @Autowired
     TransactionBusinessValidation transactionBusinessValidation;
 
-
-
-
-    public List<TransactionModel> getMapperFromRepo(){
-        List<TransactionModel> transactionMapper = null;
+    public List<TransactionDTO> getMapperFromRepo(){
+        List<TransactionDTO> transactionMapper = null;
 
         List<Transaction> transactions = transactionRepo.findAll();
 
         //Conerting Transaction to Mapper
 
         for(Transaction transaction: transactions){
-            transactionMapper.add(new TransactionModel().mapFromTransaction(transaction));
+            transactionMapper.add(new TransactionDTO().mapFromTransaction(transaction));
         }
 
         return transactionMapper;
@@ -54,10 +51,10 @@ public class TransactionUtility {
 
         boolean validationFlag = true;
 
-        if(headers.containsKey("payee-account-number") && headers.containsKey("payer-account-number") && headers.containsKey("details") && headers.containsKey("amount")) {
+        if(headers.containsKey(ApplicationConstants.PAYEE_ACCOUNT_NUMBER) && headers.containsKey(ApplicationConstants.PAYER_ACCOUNT_NUMBER) && headers.containsKey("details") && headers.containsKey("amount")) {
 
-            List<String> accountNumbers = Arrays.asList(headers.get("payee-account-number"), headers.get("payer-account-number"));
-            String amount = headers.get("amount");
+            List<String> accountNumbers = Arrays.asList(headers.get(ApplicationConstants.PAYEE_ACCOUNT_NUMBER), headers.get(ApplicationConstants.PAYER_ACCOUNT_NUMBER));
+            String amount = headers.get(ApplicationConstants.AMOUNT);
             String details = headers.get("details");
 
             Resource resource = applicationContext.getResource("classpath:TransactionValidationConfig.json");
@@ -90,32 +87,36 @@ public class TransactionUtility {
                     if(amount.matches(amountField.getFormat())
                             && Double.parseDouble(amount) <= amountField.getMax()
                             && Double.parseDouble(amount) >= amountField.getMin()){
-                        System.out.println("Amount validation for transaction passed ..");
+                        log.info("Amount validation for transaction passed ..");
                     }
                     else{
                         validationFlag = false;
-                        throw new InvalidTransactionValueException("Invalid amount Parameter in header Exception ..");
+                        throw new InvalidTransactionValueException("Invalid amount or transaction amount should be between 10 - 100000");
                     }
 
                 //details Validation
                 if(detailsField.getRequired())
                     if(details.matches(detailsField.getFormat())
                             && details.length() <= detailsField.getLength()){
+
                         System.out.println(details.matches(detailsField.getFormat())+":\n:" + (details.length() <= detailsField.getLength()) +":\n:");
-                        System.out.println("Amount validation for transaction passed ..");
+                        log.info("Amount validation for transaction passed ..");
                     }
                     else{
+
                         validationFlag = false;
-                        System.out.println(details.matches(detailsField.getFormat())+":\n:" + (details.length() <= detailsField.getLength()) +":\n:");
+                        if(!details.matches(detailsField.getFormat()) || (details.length() <= detailsField.getLength())) {
+                            throw new InvalidTransactionValueException("Invalid Message");
+                        }
                         throw new InvalidTransactionValueException("Invalid details should contain alphabets and length less than 100..");
                     }
-
-
             } catch (IOException e) {
-                System.out.println(e.getMessage());
+
+                log.error(e.getMessage());
             }
         }
         else{
+
             throw new RequiredHeaderArgumentException("The Required details to make transaction is not fulfilled in basic validation..");
         }
 
@@ -130,12 +131,12 @@ public class TransactionUtility {
 
         boolean validationFlag = true;
 
-        if(headers.containsKey("payee-account-number")
-                && headers.containsKey("payer-account-number")
+        if(headers.containsKey(ApplicationConstants.PAYEE_ACCOUNT_NUMBER)
+                && headers.containsKey(ApplicationConstants.PAYER_ACCOUNT_NUMBER)
                 && headers.containsKey("amount")) {
 
-            boolean payee = transactionBusinessValidation.checkAccount(headers.get("payee-account-number"));
-            boolean payer = transactionBusinessValidation.checkAccount(headers.get("payer-account-number"));
+            boolean payee = transactionBusinessValidation.checkAccount(headers.get(ApplicationConstants.PAYEE_ACCOUNT_NUMBER));
+            boolean payer = transactionBusinessValidation.checkAccount(headers.get(ApplicationConstants.PAYER_ACCOUNT_NUMBER));
 
             //checking payee account present in the DB
             if(!payee){
@@ -160,14 +161,14 @@ public class TransactionUtility {
             boolean payee_status = transactionBusinessValidation.checkStatus(headers.get("payee-account-number"));
 
             if(!payee_status){
-                log.info("Payee Account is status active : {}" , payee_status);
+                log.info("Payee Account status is : {}" , payee_status);
                 throw new AccountNotActiveException("The payee account is not active ..");
             }
 
             boolean payer_status = transactionBusinessValidation.checkStatus(headers.get("payer-account-number"));
 
             if(!payer_status){
-                log.info("Payer Account is status active : {}" , payer_status);
+                log.info("Payer Account is status is : {}" , payer_status);
                 throw new AccountNotActiveException("The payer account is not active ..");
             }
 

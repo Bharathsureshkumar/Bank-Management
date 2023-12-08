@@ -1,11 +1,11 @@
 package com.bank.application.persistance.conversion;
 
 import com.bank.application.persistance.Customer;
-import com.bank.application.persistance.dto.CustomerModel;
+import com.bank.application.persistance.dto.CustomerDTO;
 
 public class CustomerMapper {
 
-    public static Customer convertToEntity(CustomerModel customerModel){
+    public static Customer convertToEntity(CustomerDTO customerModel){
 
         Customer customer = new Customer();
 
@@ -17,9 +17,9 @@ public class CustomerMapper {
         return customer;
     }
 
-    public static CustomerModel convertToModel(Customer customer){
+    public static CustomerDTO convertToModel(Customer customer){
 
-        CustomerModel customerModel = new CustomerModel();
+        CustomerDTO customerModel = new CustomerDTO();
 
         customerModel.setAge(customer.getAge());
         customerModel.setName(customer.getName());

@@ -1,11 +1,11 @@
 package com.bank.application.persistance.conversion;
 
 import com.bank.application.persistance.Transaction;
-import com.bank.application.persistance.dto.TransactionModel;
+import com.bank.application.persistance.dto.TransactionDTO;
 
 public class TransactionMapper {
 
-    public static Transaction mapperToEntity(TransactionModel transactionModel){
+    public static Transaction mapperToEntity(TransactionDTO transactionModel){
 
         Transaction transaction = new Transaction();
 
@@ -19,9 +19,9 @@ public class TransactionMapper {
 
     }
 
-    public static TransactionModel entityToMapper(Transaction transaction){
+    public static TransactionDTO entityToMapper(Transaction transaction){
 
-        TransactionModel transactionModel = new TransactionModel();
+        TransactionDTO transactionModel = new TransactionDTO();
 
 //        transactionModel.setAccount(transaction.getAccount());
         transactionModel.setAmount(transaction.getAmount());

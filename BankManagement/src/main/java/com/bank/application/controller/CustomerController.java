@@ -2,7 +2,7 @@ package com.bank.application.controller;
 
 
 import com.bank.application.persistance.dto.AccountDTO;
-import com.bank.application.persistance.dto.CustomerModel;
+import com.bank.application.persistance.dto.CustomerDTO;
 import com.bank.application.exception.CommonException;
 import com.bank.application.service.Implementation.CustomerService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -26,7 +26,7 @@ public class CustomerController {
     CustomerService customerService;
 
     @PostMapping("register")
-    public ResponseEntity<CustomerModel> registerCustomer(@Valid @RequestBody CustomerModel customer)throws CommonException {
+    public ResponseEntity<CustomerDTO> registerCustomer(@Valid @RequestBody CustomerDTO customer)throws CommonException {
 
         customerService.register(customer);
 
@@ -34,13 +34,13 @@ public class CustomerController {
     }
 
     @GetMapping("viewAllAccounts")
-    public ResponseEntity<List<CustomerModel>> getAccount() throws CommonException{
+    public ResponseEntity<List<CustomerDTO>> getAccount() throws CommonException{
 
         return new ResponseEntity<>(customerService.viewAccounts(), HttpStatus.OK);
     }
 
     @GetMapping("viewAccount")
-    public ResponseEntity<CustomerModel> getAccount(@RequestHeader Map<String, String> headers) throws CommonException{
+    public ResponseEntity<CustomerDTO> getAccount(@RequestHeader Map<String, String> headers) throws CommonException{
 
         return new ResponseEntity<>(customerService.viewAccount(headers), HttpStatus.OK);
     }

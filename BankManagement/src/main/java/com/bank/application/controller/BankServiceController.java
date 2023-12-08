@@ -2,6 +2,7 @@ package com.bank.application.controller;
 
 import com.bank.application.persistance.Transaction;
 import com.bank.application.exception.*;
+import com.bank.application.persistance.dto.TransactionDTO;
 import com.bank.application.service.Implementation.TransactionService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,10 +22,25 @@ public class BankServiceController {
     TransactionService transactionService;
 
     @PostMapping("transfer")
-    public ResponseEntity<List<Transaction>> transferAmount(@RequestHeader Map<String, String> headers)
+    public ResponseEntity<List<TransactionDTO>> transferAmount(@RequestHeader Map<String, String> headers)
             throws CommonException {
 
-        List<Transaction> transactions = transactionService.transfer(headers);
+        List<TransactionDTO> transactions = transactionService.transfer(headers);
         return new ResponseEntity<>(transactions, HttpStatus.OK);
+    }
+
+    @PostMapping("deposit")
+    public ResponseEntity<String> deposit(@RequestHeader Map<String, String> headers) throws CommonException{
+
+        transactionService.deposit(headers);
+
+        return new ResponseEntity<>("Amount deposited successfully ..", HttpStatus.OK);
+    }
+    @PostMapping("withdraw")
+    public ResponseEntity<String> withdraw(@RequestHeader Map<String, String> headers) throws CommonException{
+
+        transactionService.withdraw(headers);
+
+        return new ResponseEntity<>("Amount withdrawn successfully ..", HttpStatus.OK);
     }
 }

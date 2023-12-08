@@ -2,7 +2,6 @@ package com.bank.application.advice;
 
 import com.bank.application.exception.*;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -13,6 +12,10 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class ApplicationExceptionHandler {
+
+    static final String EXCEPTION = "Exception";
+
+    static final String ERRMESSAGE = "Err Message";
 
     //Exception Handler for invalid arguments.
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -33,7 +36,7 @@ public class ApplicationExceptionHandler {
     public Map<String, String> DataNotFountExceptionHandler(NoDataPresentException exception){
 
         Map<String, String> errMap = new HashMap<>();
-        errMap.put("Error Message :", exception.getMessage());
+        errMap.put(ERRMESSAGE+ " : ", exception.getMessage());
         errMap.put("Reason : ", "Requested Data not present in the DB");
 
         return errMap;
@@ -44,8 +47,8 @@ public class ApplicationExceptionHandler {
     public Map<String, String> handleDataMismatchException(DataMismatchedException exception){
 
         Map<String, String> errMap = new HashMap<>();
-        errMap.put("Exception : ", "Data mismatched exception");
-        errMap.put("ErrorMessage", exception.getMessage());
+        errMap.put(EXCEPTION, " : Data mismatched exception");
+        errMap.put(ERRMESSAGE + " : ", exception.getMessage());
 
         return errMap;
     }
@@ -55,8 +58,8 @@ public class ApplicationExceptionHandler {
     public Map<String, String> handleTransactionException(InvalidTransactionValueException exception){
 
         Map<String, String> errMap = new HashMap<>();
-        errMap.put("Exception : ", "Invalid credentials to make transaction");
-        errMap.put("ErrMessage", exception.getMessage());
+        errMap.put(EXCEPTION , " : Invalid credentials to make transaction");
+        errMap.put(ERRMESSAGE + " : ", exception.getMessage());
 
         return errMap;
     }
@@ -65,8 +68,8 @@ public class ApplicationExceptionHandler {
     @ExceptionHandler(NoAccountFoundExcetion.class)
     public Map<String, String> handleNoAccountFound(NoAccountFoundExcetion exception){
         Map<String, String> errMap = new HashMap<>();
-        errMap.put("Exception : ", "Account not present");
-        errMap.put("ErrMessage", exception.getMessage());
+        errMap.put(EXCEPTION, " : Account not present");
+        errMap.put(ERRMESSAGE + " : ", exception.getMessage());
 
         return errMap;
     }
@@ -75,8 +78,8 @@ public class ApplicationExceptionHandler {
     @ExceptionHandler(AccountNotActiveException.class)
     public Map<String, String> handleAccountNotActive(AccountNotActiveException exception){
         Map<String, String> errMap = new HashMap<>();
-        errMap.put("Exception : ", "Account is Not in active state");
-        errMap.put("ErrMessage", exception.getMessage());
+        errMap.put(EXCEPTION, " : Account is Not in active state");
+        errMap.put(ERRMESSAGE + " : ", exception.getMessage());
 
         return errMap;
     }
@@ -86,8 +89,8 @@ public class ApplicationExceptionHandler {
     @ExceptionHandler(MinimumBalanceException.class)
     public Map<String, String> MinimumBalanceException(MinimumBalanceException exception){
         Map<String, String> errMap = new HashMap<>();
-        errMap.put("Exception : ", "Minimum balance required");
-        errMap.put("ErrMessage", exception.getMessage());
+        errMap.put(EXCEPTION, " : Minimum balance required");
+        errMap.put(ERRMESSAGE + " : ", exception.getMessage());
 
         return errMap;
     }
@@ -96,8 +99,8 @@ public class ApplicationExceptionHandler {
     @ExceptionHandler(RequiredHeaderArgumentException.class)
     public Map<String, String> handleRequiredHeaderArgumentException(RequiredHeaderArgumentException exception){
         Map<String, String> errMap = new HashMap<>();
-        errMap.put("Exception : ", "required argument missing");
-        errMap.put("ErrMessage", exception.getMessage());
+        errMap.put(EXCEPTION, " : required argument missing");
+        errMap.put(ERRMESSAGE +" : ", exception.getMessage());
 
         return errMap;
     }
@@ -108,7 +111,7 @@ public class ApplicationExceptionHandler {
 
         Map<String, String> errMap = new HashMap<>();
 
-        errMap.put("Error Message", exception.getMessage());
+        errMap.put(ERRMESSAGE + " : ", exception.getMessage());
 
         return errMap;
     }

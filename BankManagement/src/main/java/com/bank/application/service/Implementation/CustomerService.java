@@ -5,7 +5,7 @@ import com.bank.application.persistance.Customer;
 import com.bank.application.persistance.conversion.AccountMapper;
 import com.bank.application.persistance.conversion.CustomerMapper;
 import com.bank.application.persistance.dto.AccountDTO;
-import com.bank.application.persistance.dto.CustomerModel;
+import com.bank.application.persistance.dto.CustomerDTO;
 import com.bank.application.exception.*;
 import com.bank.application.repository.CustomerRepo;
 import com.bank.application.service.ICustomerService;
@@ -35,7 +35,7 @@ public class CustomerService implements ICustomerService {
     AccountMapper accountMapper;
 
     @Override
-    public CustomerModel register(CustomerModel customerModel) {
+    public CustomerDTO register(CustomerDTO customerModel) {
 
         Customer customer = CustomerMapper.convertToEntity(customerModel);
 
@@ -48,11 +48,11 @@ public class CustomerService implements ICustomerService {
     }
 
     @Override
-    public List<CustomerModel> viewAccounts() throws CommonException{
+    public List<CustomerDTO> viewAccounts() throws CommonException{
 
         List<Customer> customers = customerRepo.findAll();
 
-        List<CustomerModel> customerModels = new ArrayList<>();
+        List<CustomerDTO> customerModels = new ArrayList<>();
 
         if(customers.isEmpty()) throw new NoDataPresentException("No customer records fount ..");
         for(Customer customer: customers){
@@ -63,9 +63,9 @@ public class CustomerService implements ICustomerService {
      }
 
     @Override
-    public CustomerModel viewAccount(Map<String, String> headers) throws CommonException{
+    public CustomerDTO viewAccount(Map<String, String> headers) throws CommonException{
 
-        CustomerModel customerModel = null;
+        CustomerDTO customerModel = null;
         String panCard = null;
 
         //Validating panCard field present or not;
@@ -104,7 +104,7 @@ public class CustomerService implements ICustomerService {
     @Override
     public String updateDetails(Map<String, String> headers) throws CommonException{
 
-        CustomerModel customerModel = null;
+        CustomerDTO customerModel = null;
 
         //Checking panCard number present or not
         if(headers.containsKey("pan-card")){

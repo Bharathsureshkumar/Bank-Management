@@ -30,12 +30,16 @@ CREATE SEQUENCE transaction_id_sequence
    }
 
 //To update bank name
-//Headers ->updateName = Canara, updateBranch = 234
+//Headers ->updateName = canara, updateBranch = 234
 
 
 //ACCOUNT OPERATIONS:
 
 CREATE:
+
+->Header
+pan-card : 10 digit pan card number
+
 ->Request Body
  {
     "accountNumber" : "20089789121",

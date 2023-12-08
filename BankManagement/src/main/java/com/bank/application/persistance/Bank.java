@@ -1,5 +1,6 @@
 package com.bank.application.persistance;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import lombok.Data;
@@ -14,6 +15,7 @@ public class  Bank {
 //    @NotBlank
 //    @Size(min = 8, max = 11, message= "bank code should be  8 - 11 alphanumeric characters")
 //    @Pattern(regexp = "^[a-zA-Z0-9]+$", message = "bank code should contain only alpha numeric characters only.")
+    @Column(updatable = false)
     private String bankId;
 //    @NotNull(message = "Bank Name cant be empty")
 //    @Pattern(regexp = "^[a-zA-Z]+$", message = "Bank Name Should contain Alphabets only")

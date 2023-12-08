@@ -1,10 +1,11 @@
 package com.bank.application.persistance.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.*;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CustomerModel {
+public class CustomerDTO {
 
 
     @Size(min = 10, max = 10, message = "pan card number size should be exactly 10")
@@ -13,16 +14,19 @@ public class CustomerModel {
 
     @NotBlank(message = "customer name can not be empty ..")
     @Pattern(regexp = "^[a-zA-z]+$", message = "provide a valid customer name")
+    @JsonProperty(namespace = "Customer Name")
     String name;
 
     @NotNull
     @Positive(message = "Enter the valid age ..")
     @Min(value = 11 , message = "Age should be more than 10")
     @Max(value = 100 , message = "Age should less than 100")
+    @JsonProperty(namespace = "Customer Age")
     int age;
 
     @NotBlank(message = "Email cannot be empty ..")
     @Pattern(regexp = "^(.+)@(.+)$", message = "Provide a valid email address ..")
+    @JsonProperty(namespace = "Customer Email ID")
     String email;
 
     public String getPanCard() {
